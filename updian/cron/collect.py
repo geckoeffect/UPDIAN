@@ -125,24 +125,30 @@ def collect_update_data(serverlist):
 
     if config.mail_active:
         update_list = ['%s: %d pending updates' %
-                       (host, updates[host]) for host in updates]
+                       (host, updates[host]) for host in updates if updates[host] > 0] # only add servers with updates
+#                       (host, updates[host]) for host in updates ]
+
+        count_updates=len(update_list) # Count Number of servers to Update
 
         mailtext = update_mail_text.format(
-            count=len(updates),
+#            count=len(updates),
+            count=count_updates, # Pass update count to mail text
             update_list='\n'.join(update_list),
             updian_uri=config.updian_uri)
 
         mail = email.mime.text.MIMEText(mailtext)
-        mail['Subject'] = update_mail_subject.format(count=len(updates))
+#        mail['Subject'] = update_mail_subject.format(count=len(updates))
+        mail['Subject'] = update_mail_subject.format(count=count_updates) #pass update count to mail subject
         mail['From'] = 'updian <%s>' % (config.mail_from)
         mail['To'] = config.mail_to
 
         smtp_server = smtplib.SMTP('localhost')
-        smtp_server.sendmail(config.mail_from, [config.mail_to],
+        if count_updates > 0: # only send mail if there are updates
+                smtp_server.sendmail(config.mail_from, [config.mail_to],
                              mail.as_string())
-        smtp_server.quit()
+                smtp_server.quit()
 
-        print('Mail sent to', config.mail_to)
+                print('Mail sent to', config.mail_to)
 
 if __name__ == '__main__':
     from ..serverlist import ServerList
