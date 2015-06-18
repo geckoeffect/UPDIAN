@@ -10,6 +10,9 @@ fi
 
 case $SSH_ORIGINAL_COMMAND in
 	"apt-get update -qq" | "apt-get upgrade -s" \
+	| "/bin/bash -c \"DEBIAN_FRONTEND=noninteractive apt-get upgrade -s | grep Inst\"" \
+        | "/bin/bash -c \"PAGER=cat DEBIAN_FRONTEND=noninteractive apt-get --yes -o Dpkg::Options::=\\\"--force-confdef\\\" -o Dpkg::Options::=\\\"--force-confold\\\" upgrade\"" \
+        | "/bin/bash -c \"checkrestart\"" \
 	| "export DEBIAN_FRONTEND=noninteractive && apt-get upgrade -y --force-yes" \
 	| "apt-get autoclean" | "checkrestart" \
 	| "yum check-update -q" | "yum update -y --skip-broken")
